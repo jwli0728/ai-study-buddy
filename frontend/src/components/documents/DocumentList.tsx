@@ -32,7 +32,7 @@ const formatFileSize = (bytes: number): string => {
 export const DocumentList: React.FC<DocumentListProps> = ({ sessionId }) => {
   const { documents, isLoading, loadDocuments, deleteDocument, refreshDocumentStatus } =
     useDocumentStore();
-  const pollIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     loadDocuments(sessionId);
@@ -89,7 +89,7 @@ export const DocumentList: React.FC<DocumentListProps> = ({ sessionId }) => {
         >
           <div className="flex items-center gap-3 min-w-0 flex-1">
             <svg
-              className="h-8 w-8 text-gray-400 flex-shrink-0"
+              className="h-8 w-8 text-gray-400 shrink-0"
               fill="none"
               viewBox="0 0 24 24"
               stroke="currentColor"
