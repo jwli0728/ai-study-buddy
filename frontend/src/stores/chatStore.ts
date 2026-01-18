@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import * as chatApi from '../api/chat';
-import type { Message, SourceReference } from '../types';
+import type { Message } from '../types';
 
 interface ChatState {
   messages: Message[];

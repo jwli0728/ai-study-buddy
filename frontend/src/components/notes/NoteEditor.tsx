@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNoteStore } from '../../stores/noteStore';
 import { Button } from '../ui/Button';
 import { Input } from '../ui/Input';
