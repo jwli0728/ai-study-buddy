@@ -44,7 +44,7 @@ cd ai-study-buddy
 ### 2. Start the Database
 
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 This starts PostgreSQL with the pgvector extension on port 5432.
