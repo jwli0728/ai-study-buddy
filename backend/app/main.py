@@ -5,6 +5,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.v1.router import api_router
 from app.config import get_settings
+from app.db.database import init_db
 
 settings = get_settings()
 
@@ -13,6 +14,9 @@ settings = get_settings()
 async def lifespan(app: FastAPI):
     # Startup
     print("Starting AI Study Buddy API...")
+    print("Initializing database...")
+    await init_db()
+    print("Database initialized.")
     yield
     # Shutdown
     print("Shutting down AI Study Buddy API...")
