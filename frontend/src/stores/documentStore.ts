@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as documentApi from '../api/documents';
 import type { Document } from '../types';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 interface DocumentState {
   documents: Document[];
@@ -28,7 +29,7 @@ export const useDocumentStore = create<DocumentState>((set) => ({
       const response = await documentApi.getDocuments(sessionId);
       set({ documents: response.documents, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load documents', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
     }
   },
 
@@ -45,7 +46,7 @@ export const useDocumentStore = create<DocumentState>((set) => ({
       }));
       return document;
     } catch (err: any) {
-      set({ error: err.message || 'Failed to upload document', isLoading: false, uploadProgress: 0 });
+      set({ error: extractErrorMessage(err), isLoading: false, uploadProgress: 0 });
       throw err;
     }
   },
@@ -59,7 +60,7 @@ export const useDocumentStore = create<DocumentState>((set) => ({
         isLoading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message || 'Failed to delete document', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },

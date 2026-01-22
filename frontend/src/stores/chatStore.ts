@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as chatApi from '../api/chat';
 import type { Message } from '../types';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 interface ChatState {
   messages: Message[];
@@ -27,7 +28,7 @@ export const useChatStore = create<ChatState>((set) => ({
       const response = await chatApi.getMessages(sessionId, 0, 200);
       set({ messages: response.messages, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load messages', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
     }
   },
 
@@ -78,7 +79,7 @@ export const useChatStore = create<ChatState>((set) => ({
       // Remove optimistic update on error
       set((state) => ({
         messages: state.messages.filter((m) => m.id !== tempUserMessage.id),
-        error: err.message || 'Failed to send message',
+        error: extractErrorMessage(err),
         isSending: false,
       }));
     }
@@ -89,7 +90,7 @@ export const useChatStore = create<ChatState>((set) => ({
       await chatApi.clearMessages(sessionId);
       set({ messages: [] });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to clear messages' });
+      set({ error: extractErrorMessage(err) });
     }
   },
 

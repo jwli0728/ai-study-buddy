@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as sessionApi from '../api/sessions';
 import type { Session, SessionCreate, SessionUpdate } from '../types';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 interface SessionState {
   sessions: Session[];
@@ -31,7 +32,7 @@ export const useSessionStore = create<SessionState>((set) => ({
       const response = await sessionApi.getSessions(0, 100, includeArchived);
       set({ sessions: response.sessions, total: response.total, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load sessions', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
     }
   },
 
@@ -41,7 +42,7 @@ export const useSessionStore = create<SessionState>((set) => ({
       const session = await sessionApi.getSession(sessionId);
       set({ currentSession: session, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load session', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
     }
   },
 
@@ -56,7 +57,7 @@ export const useSessionStore = create<SessionState>((set) => ({
       }));
       return session;
     } catch (err: any) {
-      set({ error: err.message || 'Failed to create session', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -71,7 +72,7 @@ export const useSessionStore = create<SessionState>((set) => ({
         isLoading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message || 'Failed to update session', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -87,7 +88,7 @@ export const useSessionStore = create<SessionState>((set) => ({
         isLoading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message || 'Failed to delete session', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -102,7 +103,7 @@ export const useSessionStore = create<SessionState>((set) => ({
         isLoading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message || 'Failed to archive session', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },

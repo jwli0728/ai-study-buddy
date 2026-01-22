@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import * as authApi from '../api/auth';
 import type { User, RegisterRequest } from '../types';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 interface AuthState {
   user: User | null;
@@ -34,8 +35,7 @@ export const useAuthStore = create<AuthState>()(
           const user = await authApi.getMe();
           set({ user, isAuthenticated: true, isLoading: false });
         } catch (err: any) {
-          const message = err.response?.data?.detail || 'Login failed';
-          set({ error: message, isLoading: false });
+          set({ error: extractErrorMessage(err), isLoading: false });
           throw err;
         }
       },
@@ -48,8 +48,7 @@ export const useAuthStore = create<AuthState>()(
           localStorage.setItem('refresh_token', response.tokens.refresh_token);
           set({ user: response.user, isAuthenticated: true, isLoading: false });
         } catch (err: any) {
-          const message = err.response?.data?.detail || 'Registration failed';
-          set({ error: message, isLoading: false });
+          set({ error: extractErrorMessage(err), isLoading: false });
           throw err;
         }
       },

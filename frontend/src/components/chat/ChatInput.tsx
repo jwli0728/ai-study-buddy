@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { Button } from '../ui/Button';
+import { useDebounce } from '../../hooks/useDebounce';
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -9,6 +10,9 @@ interface ChatInputProps {
 export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  // Debounce the onSend callback to prevent rapid-fire submissions
+  const debouncedOnSend = useDebounce(onSend, 300);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -20,7 +24,7 @@ export const ChatInput: React.FC<ChatInputProps> = ({ onSend, disabled }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (message.trim() && !disabled) {
-      onSend(message.trim());
+      debouncedOnSend(message.trim());
       setMessage('');
     }
   };

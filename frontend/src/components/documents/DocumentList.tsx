@@ -1,8 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 import { useDocumentStore } from '../../stores/documentStore';
 import { Button } from '../ui/Button';
 import { Loading } from '../ui/Loading';
 import type { Document } from '../../types';
+import { useSmartPolling } from '../../hooks/useSmartPolling';
 
 interface DocumentListProps {
   sessionId: string;
@@ -32,30 +33,28 @@ const formatFileSize = (bytes: number): string => {
 export const DocumentList: React.FC<DocumentListProps> = ({ sessionId }) => {
   const { documents, isLoading, loadDocuments, deleteDocument, refreshDocumentStatus } =
     useDocumentStore();
-  const pollIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
     loadDocuments(sessionId);
   }, [sessionId, loadDocuments]);
 
-  // Poll for processing status updates
-  useEffect(() => {
-    const processingDocs = documents.filter(
-      (d) => d.processing_status === 'pending' || d.processing_status === 'processing'
-    );
+  // Filter documents that need polling
+  const processingDocs = documents.filter(
+    (d) => d.processing_status === 'pending' || d.processing_status === 'processing'
+  );
 
-    if (processingDocs.length > 0) {
-      pollIntervalRef.current = setInterval(() => {
-        processingDocs.forEach((doc) => refreshDocumentStatus(doc.id));
-      }, 3000);
-    }
-
-    return () => {
-      if (pollIntervalRef.current) {
-        clearInterval(pollIntervalRef.current);
-      }
-    };
-  }, [documents, refreshDocumentStatus]);
+  // Smart polling with adaptive backoff
+  useSmartPolling({
+    baseInterval: 3000, // 3 seconds
+    maxInterval: 30000, // 30 seconds max
+    onPoll: async () => {
+      // Poll all processing documents in parallel
+      await Promise.all(
+        processingDocs.map((doc) => refreshDocumentStatus(doc.id))
+      );
+    },
+    enabled: processingDocs.length > 0,
+  });
 
   const handleDelete = async (documentId: string) => {
     if (window.confirm('Are you sure you want to delete this document?')) {

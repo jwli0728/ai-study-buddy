@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import * as noteApi from '../api/notes';
 import type { Note, NoteCreate, NoteUpdate } from '../types';
+import { extractErrorMessage } from '../utils/errorHandler';
 
 interface NoteState {
   notes: Note[];
@@ -30,7 +31,7 @@ export const useNoteStore = create<NoteState>((set) => ({
       const response = await noteApi.getNotes(sessionId);
       set({ notes: response.notes, isLoading: false });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to load notes', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
     }
   },
 
@@ -45,7 +46,7 @@ export const useNoteStore = create<NoteState>((set) => ({
       }));
       return note;
     } catch (err: any) {
-      set({ error: err.message || 'Failed to create note', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -60,7 +61,7 @@ export const useNoteStore = create<NoteState>((set) => ({
         isLoading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message || 'Failed to update note', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -75,7 +76,7 @@ export const useNoteStore = create<NoteState>((set) => ({
         isLoading: false,
       }));
     } catch (err: any) {
-      set({ error: err.message || 'Failed to delete note', isLoading: false });
+      set({ error: extractErrorMessage(err), isLoading: false });
       throw err;
     }
   },
@@ -97,7 +98,7 @@ export const useNoteStore = create<NoteState>((set) => ({
         };
       });
     } catch (err: any) {
-      set({ error: err.message || 'Failed to pin note' });
+      set({ error: extractErrorMessage(err) });
       throw err;
     }
   },
