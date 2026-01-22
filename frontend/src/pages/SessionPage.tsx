@@ -142,7 +142,7 @@ export const SessionPage: React.FC = () => {
 
         {activeTab === 'notes' && (
           <div className="flex h-full gap-4">
-            <div className="w-64 bg-white rounded-lg border border-gray-200 flex-shrink-0">
+            <div className="w-64 bg-white rounded-lg border border-gray-200 shrink-0">
               <NoteList
                 sessionId={sessionId!}
                 onSelectNote={handleSelectNote}
