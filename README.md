@@ -1,12 +1,12 @@
 # AI Study Buddy
 
-A fullstack AI-powered study assistant that allows users to upload lecture notes and ask questions using RAG (Retrieval-Augmented Generation) with Google Gemini.
+A fullstack AI-powered study assistant that allows users to upload lecture notes/slides and ask questions using RAG (Retrieval-Augmented Generation) with Google Gemini.
 
 ## Features
 
 - **Multi-user authentication** - Email/password login with JWT tokens
 - **Study sessions** - Create and organize study sessions by subject
-- **Document upload** - Upload lecture notes (PDF, TXT, MD, DOCX) for AI context
+- **Document upload** - Upload lecture notes/slides (PDF, TXT, MD, DOCX) for AI context
 - **RAG-powered chat** - Ask questions with AI responses grounded in your uploaded materials
 - **Note-taking** - Create and organize notes within each study session
 
