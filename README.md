@@ -23,7 +23,6 @@ A fullstack AI-powered study assistant that allows users to upload lecture notes
 - React + TypeScript
 - Vite (build tool)
 - Tailwind CSS (styling)
-- Zustand (state management)
 - React Router (navigation)
 
 ## Prerequisites
