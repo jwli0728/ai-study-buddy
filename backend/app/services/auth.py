@@ -5,9 +5,9 @@ from uuid import UUID
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.db.models import User, RefreshToken
 import logging
 
+from app.db.models import User, RefreshToken, PasswordResetToken
 from app.schemas import UserCreate, UserResponse, TokenResponse, AuthResponse
 from app.core.security import (
     hash_password,
@@ -15,6 +15,8 @@ from app.core.security import (
     create_access_token,
     create_refresh_token,
     verify_refresh_token,
+    create_password_reset_token,
+    InvalidTokenError,
 )
 from app.config import get_settings
 
@@ -133,4 +135,39 @@ class AuthService:
         return AuthResponse(
             user=UserResponse.model_validate(user),
             tokens=tokens,
+        )
+
+    @staticmethod
+    async def request_password_reset(db: AsyncSession, email: str) -> None:
+        """Generate a password reset token and log it to console.
+
+        Always completes without error regardless of whether the email exists,
+        to avoid leaking information about registered accounts.
+        """
+        user = await AuthService.get_user_by_email(db, email)
+        if not user or not user.is_active:
+            return
+
+        # Generate reset token
+        token = create_password_reset_token(str(user.id))
+
+        # Store SHA256 hash in database
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        expires_at = datetime.now(timezone.utc) + timedelta(
+            minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES
+        )
+
+        reset_token_record = PasswordResetToken(
+            user_id=user.id,
+            token_hash=token_hash,
+            expires_at=expires_at,
+        )
+        db.add(reset_token_record)
+        await db.commit()
+
+        # Log token to console for local development
+        logger.info(
+            "PASSWORD RESET TOKEN for %s: %s",
+            email,
+            token,
         )
