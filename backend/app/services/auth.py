@@ -6,6 +6,8 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.db.models import User, RefreshToken
+import logging
+
 from app.schemas import UserCreate, UserResponse, TokenResponse, AuthResponse
 from app.core.security import (
     hash_password,
@@ -17,6 +19,7 @@ from app.core.security import (
 from app.config import get_settings
 
 settings = get_settings()
+logger = logging.getLogger(__name__)
 
 
 class AuthService:
