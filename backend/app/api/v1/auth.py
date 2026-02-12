@@ -10,6 +10,9 @@ from app.schemas import (
     TokenRefreshRequest,
     TokenRefreshResponse,
     AuthResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    MessageResponse,
 )
 from app.services.auth import AuthService
 from app.api.deps import get_current_user
@@ -72,6 +75,33 @@ async def logout(
     """Logout and revoke refresh token."""
     await AuthService.revoke_refresh_token(db, request.refresh_token)
     return None
+
+
+@router.post("/forgot-password", response_model=MessageResponse)
+async def forgot_password(
+    request: ForgotPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Request a password reset. Always returns success to avoid leaking email existence."""
+    await AuthService.request_password_reset(db, request.email)
+    return MessageResponse(
+        message="If an account with that email exists, a password reset link has been sent."
+    )
+
+
+@router.post("/reset-password", response_model=MessageResponse)
+async def reset_password(
+    request: ResetPasswordRequest,
+    db: AsyncSession = Depends(get_db),
+):
+    """Reset password using a valid reset token."""
+    success = await AuthService.reset_password(db, request.token, request.new_password)
+    if not success:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Invalid or expired reset token",
+        )
+    return MessageResponse(message="Password has been reset successfully.")
 
 
 @router.get("/me", response_model=UserResponse)
