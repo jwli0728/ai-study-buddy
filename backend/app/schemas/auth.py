@@ -26,3 +26,16 @@ class TokenRefreshResponse(BaseModel):
 class AuthResponse(BaseModel):
     user: UserResponse
     tokens: TokenResponse
+
+
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+
+class ResetPasswordRequest(BaseModel):
+    token: str
+    new_password: str
+
+
+class MessageResponse(BaseModel):
+    message: str

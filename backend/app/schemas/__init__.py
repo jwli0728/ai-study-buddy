@@ -5,6 +5,9 @@ from app.schemas.auth import (
     TokenRefreshRequest,
     TokenRefreshResponse,
     AuthResponse,
+    ForgotPasswordRequest,
+    ResetPasswordRequest,
+    MessageResponse,
 )
 from app.schemas.session import (
     SessionCreate,
@@ -35,6 +38,9 @@ __all__ = [
     "TokenRefreshRequest",
     "TokenRefreshResponse",
     "AuthResponse",
+    "ForgotPasswordRequest",
+    "ResetPasswordRequest",
+    "MessageResponse",
     "SessionCreate",
     "SessionUpdate",
     "SessionResponse",
