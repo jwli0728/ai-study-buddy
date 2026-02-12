@@ -64,9 +64,6 @@ pip install -r requirements.txt
 cp .env.example .env
 # Edit .env and add your GOOGLE_API_KEY
 
-# Run database migrations
-alembic upgrade head
-
 # Start the backend server
 uvicorn app.main:app --reload
 ```
@@ -134,7 +131,6 @@ GOOGLE_API_KEY=your-google-api-key
 ```
 ai-study-buddy/
 ├── backend/
-│   ├── alembic/              # Database migrations
 │   ├── app/
 │   │   ├── api/v1/           # API routes
 │   │   ├── core/             # Security, config
@@ -167,19 +163,4 @@ pytest
 # Frontend
 cd frontend
 npm test
-```
-
-### Database Migrations
-
-```bash
-cd backend
-
-# Create a new migration
-alembic revision --autogenerate -m "description"
-
-# Apply migrations
-alembic upgrade head
-
-# Rollback
-alembic downgrade -1
 ```
