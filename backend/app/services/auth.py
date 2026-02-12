@@ -16,6 +16,7 @@ from app.core.security import (
     create_refresh_token,
     verify_refresh_token,
     create_password_reset_token,
+    verify_password_reset_token,
     InvalidTokenError,
 )
 from app.config import get_settings
@@ -171,3 +172,39 @@ class AuthService:
             email,
             token,
         )
+
+    @staticmethod
+    async def reset_password(db: AsyncSession, token: str, new_password: str) -> bool:
+        """Validate a password reset token and update the user's password.
+
+        Returns True on success, False if the token is invalid/expired/used.
+        """
+        try:
+            user_id = verify_password_reset_token(token)
+        except InvalidTokenError:
+            return False
+
+        # Look up the token hash in the database
+        token_hash = hashlib.sha256(token.encode()).hexdigest()
+        result = await db.execute(
+            select(PasswordResetToken).where(
+                PasswordResetToken.token_hash == token_hash,
+                PasswordResetToken.used == False,
+                PasswordResetToken.expires_at > datetime.now(timezone.utc),
+            )
+        )
+        token_record = result.scalar_one_or_none()
+        if not token_record:
+            return False
+
+        # Verify user exists and is active
+        user = await AuthService.get_user_by_id(db, UUID(user_id))
+        if not user or not user.is_active:
+            return False
+
+        # Update password and mark token as used
+        user.hashed_password = hash_password(new_password)
+        token_record.used = True
+        await db.commit()
+
+        return True

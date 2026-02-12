@@ -101,3 +101,14 @@ def create_password_reset_token(user_id: str, expires_delta: Optional[timedelta]
         "type": "password_reset"
     }
     return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
+
+
+def verify_password_reset_token(token: str) -> str:
+    """Verify a password reset token and return the user ID."""
+    payload = decode_token(token)
+    if payload.get("type") != "password_reset":
+        raise InvalidTokenError("Invalid token type")
+    user_id = payload.get("sub")
+    if not user_id:
+        raise InvalidTokenError("Invalid token payload")
+    return user_id
