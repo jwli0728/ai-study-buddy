@@ -86,3 +86,18 @@ def verify_refresh_token(token: str) -> str:
     if not user_id:
         raise InvalidTokenError("Invalid token payload")
     return user_id
+
+
+def create_password_reset_token(user_id: str, expires_delta: Optional[timedelta] = None) -> str:
+    """Create a JWT password reset token."""
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=settings.PASSWORD_RESET_TOKEN_EXPIRE_MINUTES)
+
+    payload = {
+        "sub": user_id,
+        "exp": expire,
+        "type": "password_reset"
+    }
+    return jwt.encode(payload, settings.SECRET_KEY, algorithm=settings.ALGORITHM)
