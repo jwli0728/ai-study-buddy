@@ -45,11 +45,9 @@ Respond with ONLY 'retrieve' or 'direct', nothing else.""",
         """Route the query based on content analysis."""
         # If no documents exist, skip retrieval
         if not state.get("has_documents", False):
-            state["needs_retrieval"] = False
-            return state
+            return {"needs_retrieval": False}
 
         chain = self.prompt | self.llm
         result = await chain.ainvoke({"query": state["user_query"]})
         decision = result.content.strip().lower()
-        state["needs_retrieval"] = decision == "retrieve"
-        return state
+        return {"needs_retrieval": decision == "retrieve"}

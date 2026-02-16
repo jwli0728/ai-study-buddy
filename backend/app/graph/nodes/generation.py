@@ -72,7 +72,7 @@ Guidelines:
                 {"context": context, "messages": state["messages"]}
             )
 
-            state["sources"] = [
+            sources = [
                 {
                     "chunk_id": chunk["id"],
                     "document_name": chunk["document_name"],
@@ -84,7 +84,6 @@ Guidelines:
             # General response without RAG
             chain = self.general_prompt | self.llm
             response = await chain.ainvoke({"messages": state["messages"]})
-            state["sources"] = []
+            sources = []
 
-        state["response"] = response.content
-        return state
+        return {"response": response.content, "sources": sources}
