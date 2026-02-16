@@ -1,6 +1,6 @@
 from uuid import UUID
 
-from sqlalchemy.ext.asyncio import AsyncSession
+from langchain_core.runnables import RunnableConfig
 
 from app.graph.state import GraphState
 from app.services.embedding import EmbeddingService
@@ -12,13 +12,14 @@ class RetrievalNode:
     def __init__(self):
         self.embedding_service = EmbeddingService()
 
-    async def __call__(self, state: GraphState, db: AsyncSession) -> GraphState:
+    async def __call__(self, state: GraphState, config: RunnableConfig) -> GraphState:
         """Retrieve relevant document chunks for the query."""
         if not state.get("needs_retrieval", False):
-            state["retrieved_chunks"] = []
-            state["has_context"] = False
-            return state
+            return {"retrieved_chunks": [], "has_context": False}
 
+        # We pass the db session through a RunnableConfig because we want to reuse the same session/transaction across
+        # all nodes. We also do not want to pass db through GraphState because we need to keep GraphState serializable.
+        db = config["configurable"]["db"]
         session_id = UUID(state["session_id"])
 
         # Perform similarity search
@@ -30,7 +31,7 @@ class RetrievalNode:
             score_threshold=0.5,
         )
 
-        state["retrieved_chunks"] = [
+        retrieved_chunks = [
             {
                 "id": chunk.id,
                 "content": chunk.content,
@@ -39,6 +40,5 @@ class RetrievalNode:
             }
             for chunk in chunks
         ]
-        state["has_context"] = len(chunks) > 0
 
-        return state
+        return {"retrieved_chunks": retrieved_chunks, "has_context": len(chunks) > 0}

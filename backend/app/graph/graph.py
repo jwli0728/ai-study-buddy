@@ -19,17 +19,16 @@ class StudyBuddyGraph:
         self.retrieval = RetrievalNode()
         self.generation = GenerationNode()
         self.embedding_service = EmbeddingService()
-        self._graph = None
+        self._graph = self._build_graph()
 
-    def _build_graph(self) -> StateGraph:
-        """Build the conversation graph."""
+    def _build_graph(self):
+        """Build and compile the conversation graph."""
         workflow = StateGraph(GraphState)
 
-        # Add nodes - we'll handle the actual logic in run()
-        # since we need db access which isn't available at graph build time
-        workflow.add_node("route_query", lambda state: state)
-        workflow.add_node("retrieve", lambda state: state)
-        workflow.add_node("generate", lambda state: state)
+        # Add nodes with real callables
+        workflow.add_node("route_query", self.router)
+        workflow.add_node("retrieve", self.retrieval)
+        workflow.add_node("generate", self.generation)
 
         # Define edges
         workflow.set_entry_point("route_query")
@@ -72,7 +71,7 @@ class StudyBuddyGraph:
         has_documents = await self.embedding_service.has_documents(db, session_id)
 
         # Initialize state
-        state: GraphState = {
+        initial_state: GraphState = {
             "user_query": user_query,
             "session_id": str(session_id),
             "user_id": str(user_id),
@@ -85,20 +84,15 @@ class StudyBuddyGraph:
             "sources": [],
         }
 
-        # Run the graph steps manually to pass db
-        # Step 1: Route query
-        state = await self.router(state)
-
-        # Step 2: Retrieve if needed
-        if state.get("needs_retrieval", False):
-            state = await self.retrieval(state, db)
-
-        # Step 3: Generate response
-        state = await self.generation(state)
+        # Run the compiled graph, passing db via config
+        result = await self._graph.ainvoke(
+            initial_state,
+            config={"configurable": {"db": db}},
+        )
 
         return {
-            "response": state["response"],
-            "sources": state["sources"],
+            "response": result["response"],
+            "sources": result["sources"],
         }
 
 
