@@ -30,6 +30,7 @@ Guidelines:
 - Be educational and encouraging
 - Keep responses clear and well-organized
 - If asked about something not in the context, acknowledge this and provide general knowledge if appropriate
+- Do not use markdown formatting.
 
 Context from lecture notes:
 {context}""",
