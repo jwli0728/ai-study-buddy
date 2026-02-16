@@ -17,6 +17,9 @@ class Settings(BaseSettings):
     # Google AI
     GOOGLE_API_KEY: str = ""
 
+    # CORS
+    CORS_ORIGINS: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+
     # File uploads
     UPLOAD_DIR: str = "uploads/documents"
     MAX_UPLOAD_SIZE: int = 10 * 1024 * 1024  # 10MB
