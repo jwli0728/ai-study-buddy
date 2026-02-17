@@ -16,9 +16,9 @@ class StudyBuddyGraph:
 
     def __init__(self):
         self.router = QueryRouterNode()
-        self.retrieval = RetrievalNode()
-        self.generation = GenerationNode()
         self.embedding_service = EmbeddingService()
+        self.retrieval = RetrievalNode(self.embedding_service)
+        self.generation = GenerationNode()
         self._graph = self._build_graph()
 
     def _build_graph(self):

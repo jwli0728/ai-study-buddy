@@ -9,8 +9,8 @@ from app.services.embedding import EmbeddingService
 class RetrievalNode:
     """RAG retrieval node using pgvector similarity search."""
 
-    def __init__(self):
-        self.embedding_service = EmbeddingService()
+    def __init__(self, embedding_service: EmbeddingService):
+        self.embedding_service = embedding_service
 
     async def __call__(self, state: GraphState, config: RunnableConfig) -> GraphState:
         """Retrieve relevant document chunks for the query."""
